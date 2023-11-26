@@ -22,7 +22,7 @@ pip install keras
 
 pip install tensorflow
 
-#import required libraries
+#import required libraries.
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
