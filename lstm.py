@@ -71,3 +71,43 @@ yelp_subset.to_json(output_json_file_path, orient='records', lines=True)
 # Display the shape of the loaded subset
 print("Shape of Yelp Subset:", yelp_subset.shape)
 yelp_subset.head()
+
+Exploratory Data Analysis
+# Set seaborn style
+sns.set(style="whitegrid")
+
+# 2. Distribution of Ratings
+plt.figure(figsize=(8, 6))
+sns.countplot(x='stars', data=yelp_subset, palette="viridis")
+plt.title('Distribution of Ratings', fontsize=16)
+plt.xlabel('Star Ratings', fontsize=14)
+plt.ylabel('Count', fontsize=14)
+plt.show()
+
+#Review Length Distribution
+plt.figure(figsize=(10, 6))
+yelp_subset['review_length'] = yelp_subset['text'].apply(lambda x: len(word_tokenize(x)))
+sns.histplot(yelp_subset['review_length'], bins=50, kde=True, color='skyblue')
+plt.title('Distribution of Review Lengths', fontsize=16)
+plt.xlabel('Review Length', fontsize=14)
+plt.ylabel('Frequency', fontsize=14)
+plt.show()
+
+# insert a column to store language information
+yelp_subset['language'] = yelp_subset['text'].apply(lambda x: detect(x) if isinstance(x, str) else None)
+
+# calculate the  word counts for reviews in each language
+yelp_subset['word_count'] = yelp_subset['text'].apply(lambda x: len(word_tokenize(x)) if isinstance(x, str) else 0)
+
+#new column for number of reviews for each language
+review_counts_by_language = yelp_subset['language'].value_counts().reset_index()
+
+#plot for the number of reviews for each language to check if there are non-english words
+plt.figure(figsize=(12, 8))
+sns.barplot(x='index', y='language', data=review_counts_by_language)
+plt.title('Number of Reviews by Language')
+plt.xlabel('Language')
+plt.ylabel('Number of Reviews')
+plt.show()
+
+
