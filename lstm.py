@@ -173,4 +173,18 @@ max_len = 300
 x_train_pad = pad_sequences(x_train_seq, maxlen=max_len)
 x_test_pad = pad_sequences(x_test_seq, maxlen=max_len)
 
+### Model Building
+#converting integer indices representing words into dense vectors of fixed size
+embedding_dim = 50
 
+
+model = Sequential()
+model.add(Embedding(input_dim=max_num_words,#size of the vocabulary
+                    output_dim=embedding_dim,#size of dense embeddings
+                    input_length=max_len))#maximum length of input sequences
+#model.add(LSTM(100, return_sequences=True))  # Additional LSTM layer
+model.add(LSTM(100, kernel_regularizer=l2(0.01)))
+model.add(Dropout(0.5))#to handle overfitting
+model.add(Dense(3, activation='softmax')) # 3 output nodes for positive, negative, and neutral
+
+model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
