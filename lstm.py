@@ -198,3 +198,22 @@ y_test_encoded = label_encoder.transform(y_test)
 # Convert numerical lables to one-hot encoding
 y_train_one_hot = pd.get_dummies(y_train_encoded)
 y_test_one_hot = pd.get_dummies(y_test_encoded)
+
+# tokenize with BERT tokenizer
+tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased', do_lower_case=True)
+
+
+#tokenize the resampled training set
+train_encodings = tokenizer(list(x_train_resampled), truncation=True, padding=True, max_length=400, return_tensors='pt')
+
+#tokenize the testing set
+test_encodings = tokenizer(list(x_test), truncation=True, padding=True, max_length=400, return_tensors='pt')
+
+#convert labels to numerical values
+label_mapping = {'positive': 2, 'neutral': 1, 'negative': 0}
+y_train_mapped = y_train_resampled.map(label_mapping)
+y_test_mapped = y_test.map(label_mapping)
+
+#create DataLoader for the resampled training set
+train_dataset = TensorDataset(train_encodings['input_ids'], train_encodings['attention_mask'], torch.tensor(y_train_mapped.values))
+train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
