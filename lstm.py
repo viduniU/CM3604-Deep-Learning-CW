@@ -188,3 +188,13 @@ model.add(Dropout(0.5))#to handle overfitting
 model.add(Dense(3, activation='softmax')) # 3 output nodes for positive, negative, and neutral
 
 model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
+
+### Label Encoding
+#convert categorical sentiment labels ('positive','negative','neutral') into numerical labels
+label_encoder = LabelEncoder()
+y_train_encoded = label_encoder.fit_transform(y_train_resampled)
+y_test_encoded = label_encoder.transform(y_test)
+
+# Convert numerical lables to one-hot encoding
+y_train_one_hot = pd.get_dummies(y_train_encoded)
+y_test_one_hot = pd.get_dummies(y_test_encoded)
