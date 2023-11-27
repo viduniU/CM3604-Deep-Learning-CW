@@ -110,4 +110,67 @@ plt.xlabel('Language')
 plt.ylabel('Number of Reviews')
 plt.show()
 
+Preprocessing
+
+Feature Engineering
+
+#derive sentiment labels from star labels
+yelp_subset['sentiment'] = yelp_subset['stars'].apply(lambda x: 'positive' if x > 3 else ('negative' if x < 3 else 'neutral'))
+
+Text Normalization
+
+#handle imbalane classes with random oversampling
+x_train, x_test, y_train, y_test = train_test_split(yelp_subset['text'], yelp_subset['sentiment'], test_size=0.2, random_state=42)
+
+#convert all text to lowercase for uniformity
+x_train = x_train.apply(lambda x: x.lower())
+x_test = x_test.apply(lambda x: x.lower())
+
+#remove punctuation to reduce noise in the text.
+x_train = x_train.apply(lambda x: x.translate(str.maketrans('', '', string.punctuation)))
+x_test = x_test.apply(lambda x: x.translate(str.maketrans('', '', string.punctuation)))
+
+#remove common words that may not contribute much to sentiment
+stop_words = set(stopwords.words('english'))
+x_train = x_train.apply(lambda x: ' '.join([word for word in word_tokenize(x) if word.lower() not in stop_words]))
+x_test = x_test.apply(lambda x: ' '.join([word for word in word_tokenize(x) if word.lower() not in stop_words]))
+
+#reduce words to the base form
+lemmatizer = WordNetLemmatizer()
+x_train = x_train.apply(lambda x: ' '.join([lemmatizer.lemmatize(word) for word in word_tokenize(x)]))
+x_test = x_test.apply(lambda x: ' '.join([lemmatizer.lemmatize(word) for word in word_tokenize(x)]))
+
+#reshape x_train to have two dimensions
+x_train_reshape = x_train.values.reshape(-1, 1)
+
+#oversample the minority classes
+over_sampler = RandomOverSampler(sampling_strategy='auto', random_state=42)
+x_train_over_resampled, y_train_resampled = over_sampler.fit_resample(x_train_reshape, y_train)
+
+#convert oversampled indices to text sequences
+x_train_over = x_train_over_resampled.flatten()
+
+Tokenization
+
+#maximum number of words to keep based on word frequency
+max_num_words = 3000
+
+#create a tokenizer
+tokenizer = Tokenizer(num_words=max_num_words,#replace the  words not in the tokenizer's vocabulary
+                       oov_token='<OOV>')
+
+#fit the tokenizer on text
+tokenizer.fit_on_texts(x_train_over)
+
+#convert the text to integers sequences
+x_train_seq = tokenizer.texts_to_sequences(x_train_over)
+x_test_seq = tokenizer.texts_to_sequences(x_test)
+
+#define maximum length of the sequence
+max_len = 300
+
+#pad sequences to make sentences to the same length
+x_train_pad = pad_sequences(x_train_seq, maxlen=max_len)
+x_test_pad = pad_sequences(x_test_seq, maxlen=max_len)
+
 
