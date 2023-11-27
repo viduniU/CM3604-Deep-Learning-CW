@@ -3,6 +3,7 @@ print("GPU Available:", tf.config.list_physical_devices('GPU'))
 import pandas as pd
 import numpy as np
 import torch
+import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader, TensorDataset, random_split
 # from transformers import BertTokenizer, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification, AdamW, get_linear_schedule_with_warmup
