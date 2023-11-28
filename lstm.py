@@ -173,7 +173,7 @@ max_len = 300
 x_train_pad = pad_sequences(x_train_seq, maxlen=max_len)
 x_test_pad = pad_sequences(x_test_seq, maxlen=max_len)
 
-### Model Building
+Model Building
 #converting integer indices representing words into dense vectors of fixed size
 embedding_dim = 50
 
@@ -189,7 +189,7 @@ model.add(Dense(3, activation='softmax')) # 3 output nodes for positive, negativ
 
 model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
 
-### Label Encoding
+Label Encoding
 #convert categorical sentiment labels ('positive','negative','neutral') into numerical labels
 label_encoder = LabelEncoder()
 y_train_encoded = label_encoder.fit_transform(y_train_resampled)
@@ -199,21 +199,16 @@ y_test_encoded = label_encoder.transform(y_test)
 y_train_one_hot = pd.get_dummies(y_train_encoded)
 y_test_one_hot = pd.get_dummies(y_test_encoded)
 
-# tokenize with BERT tokenizer
-tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased', do_lower_case=True)
+#early stopping
+early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
 
-
-#tokenize the resampled training set
-train_encodings = tokenizer(list(x_train_resampled), truncation=True, padding=True, max_length=400, return_tensors='pt')
-
-#tokenize the testing set
-test_encodings = tokenizer(list(x_test), truncation=True, padding=True, max_length=400, return_tensors='pt')
-
-#convert labels to numerical values
-label_mapping = {'positive': 2, 'neutral': 1, 'negative': 0}
-y_train_mapped = y_train_resampled.map(label_mapping)
-y_test_mapped = y_test.map(label_mapping)
-
-#create DataLoader for the resampled training set
-train_dataset = TensorDataset(train_encodings['input_ids'], train_encodings['attention_mask'], torch.tensor(y_train_mapped.values))
-train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
+Model Training
+# model training
+history = model.fit(
+    x_train_pad,
+    y_train_one_hot,
+    epochs=60,
+    batch_size=500,
+    validation_split=0.1,
+    callbacks=[early_stopping]  #add the early stopping callback
+)
