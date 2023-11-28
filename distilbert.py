@@ -83,4 +83,72 @@ model = DistilBertForSequenceClassification.from_pretrained('distilbert-base-unc
 optimizer = AdamW(model.parameters(), lr=5e-5)
 scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=len(train_loader)*3)
 
+epochs = 5
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model.to(device)
+
+
+#early stopping to avoid overfitting
+early_stopping = EarlyStopping(monitor='val_loss', patience=2, restore_best_weights=True)
+
+#define lists to store metrics during training
+train_losses = []
+train_f1_scores = []
+train_precisions = []
+train_recalls = []
+val_accuracies = []
+test_accuracies = []
+train_accuracies = []
+
+
+
+for epoch in range(epochs):
+    model.train()
+    total_loss = 0
+    predictions = []
+    true_labels = []
+
+    for batch_num, batch in enumerate(train_loader):
+        inputs = {'input_ids': batch[0].to(device),
+                  'attention_mask': batch[1].to(device),
+                  'labels': batch[2].to(device)}
+
+        optimizer.zero_grad()
+        outputs = model(**inputs)
+        loss = outputs.loss
+        total_loss += loss.item()
+
+        loss.backward()
+        optimizer.step()
+        scheduler.step()
+
+        #calculate predictions and true labels for metric
+        predictions.extend(outputs.logits.argmax(dim=1).cpu().numpy())
+        true_labels.extend(inputs['labels'].cpu().numpy())
+
+        if batch_num % 100 == 0:
+            print(f'Epoch {epoch + 1}/{epochs}, Batch {batch_num}/{len(train_loader)}, Loss: {loss.item()}')
+
+    average_loss = total_loss / len(train_loader)
+    train_losses.append(average_loss)
+
+    #calculate accuracy,F1 score, precision, and recall on training data
+    train_accuracy = accuracy_score(true_labels, predictions)
+    f1_train = f1_score(true_labels, predictions, average='weighted')
+    precision_train = precision_score(true_labels, predictions, average='weighted')
+    recall_train = recall_score(true_labels, predictions, average='weighted')
+
+
+     #append to lists to retrive matrices after training
+    train_accuracies.append(train_accuracy)
+    train_f1_scores.append(f1_train)
+    train_precisions.append(precision_train)
+    train_recalls.append(recall_train)
+
+    print(f'Epoch {epoch + 1}/{epochs}, Training Loss: {average_loss}, '
+          f'Training Accuracy: {train_accuracy}, F1 Score: {f1_train}, '
+          f'Precision: {precision_train}, Recall: {recall_train}')
+
+
+
 
