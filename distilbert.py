@@ -149,6 +149,9 @@ for epoch in range(epochs):
           f'Training Accuracy: {train_accuracy}, F1 Score: {f1_train}, '
           f'Precision: {precision_train}, Recall: {recall_train}')
 
+#save the trained model
+model.save_pretrained('BERT_model')
+
 
 
 
