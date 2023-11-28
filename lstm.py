@@ -212,3 +212,26 @@ history = model.fit(
     validation_split=0.1,
     callbacks=[early_stopping]  #add the early stopping callback
 )
+
+Model Evaluation
+
+#save the trained model
+model.save('lstm_model_v3.h5')
+
+#load the model
+loaded_model = load_model('lstm_model_v3.h5')
+
+loss, accuracy = model.evaluate(x_test_pad, y_test_one_hot)#assess the performance on test data
+print(f'Test Accuracy: {accuracy * 100:.2f}%')
+
+#calculate predictions
+y_pred = model.predict(x_test_pad)
+y_pred_classes = np.argmax(y_pred, axis=1)
+y_true_classes = np.argmax(np.array(y_test_one_hot), axis=1)
+
+# calculate precision, recall, and F1 score
+precision = precision_score(y_true_classes, y_pred_classes, average='weighted')
+recall = recall_score(y_true_classes, y_pred_classes, average='weighted')
+f1 = f1_score(y_true_classes, y_pred_classes, average='weighted')
+
+print(f'Precision: {precision}, Recall: {recall}, F1 Score: {f1}')
