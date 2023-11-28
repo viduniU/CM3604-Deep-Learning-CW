@@ -235,3 +235,11 @@ recall = recall_score(y_true_classes, y_pred_classes, average='weighted')
 f1 = f1_score(y_true_classes, y_pred_classes, average='weighted')
 
 print(f'Precision: {precision}, Recall: {recall}, F1 Score: {f1}')
+
+y_pred = model.predict(x_test_pad)
+y_pred_classes = np.argmax(y_pred, axis=-1)
+
+cm = confusion_matrix(y_test_encoded, y_pred_classes)
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=label_encoder.classes_, yticklabels=label_encoder.classes_)
+plt.show()
+
