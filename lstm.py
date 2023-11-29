@@ -243,3 +243,25 @@ cm = confusion_matrix(y_test_encoded, y_pred_classes)
 sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=label_encoder.classes_, yticklabels=label_encoder.classes_)
 plt.show()
 
+plt.figure(figsize=(12, 6))
+
+#plot training & validation loss values
+plt.subplot(1, 2, 1)
+plt.plot(history.history['loss'], label='Train Loss', marker='o')
+#plt.plot(history.history['val_loss'], label='Validation Loss', marker='o')
+plt.title('Model Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
+
+plt.figure(figsize=(12, 6))
+
+#plot  for  Accuracy over epochs
+plt.subplot(1, 2, 1)
+plt.plot(history.history['accuracy'], label='Accuracy', marker='o',color='orange')
+plt.title('Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
