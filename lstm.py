@@ -175,7 +175,7 @@ x_test_pad = pad_sequences(x_test_seq, maxlen=max_len)
 
 Model Building
 #converting integer indices representing words into dense vectors of fixed size
-embedding_dim = 100
+embedding_dim = 50
 
 
 model = Sequential()
