@@ -183,7 +183,7 @@ model.add(Embedding(input_dim=max_num_words,#size of the vocabulary
                     output_dim=embedding_dim,#size of dense embeddings
                     input_length=max_len))#maximum length of input sequences
 #model.add(LSTM(100, return_sequences=True))  # Additional LSTM layer
-model.add(LSTM(100, kernel_regularizer=l2(0.001)))
+model.add(LSTM(100, kernel_regularizer=l2(0.01)))
 model.add(Dropout(0.5))#to handle overfitting
 model.add(Dense(3, activation='softmax')) # 3 output nodes for positive, negative, and neutral
 
