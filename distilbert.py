@@ -152,6 +152,56 @@ for epoch in range(epochs):
 #save the trained model
 model.save_pretrained('BERT_model')
 
+from transformers import DistilBertForSequenceClassification, DistilBertTokenizer
+import torch
+
+#load the model
+loaded_model = DistilBertForSequenceClassification.from_pretrained('/content/BERT_model')
+
+#load the corresponding tokenizer
+tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased', do_lower_case=True)
+
+label_mapping_reverse = {0: 'negative', 1: 'neutral', 2: 'positive'}
+
+#evaluate the model on the test set
+
+model.eval()
+test_predictions = []
+test_true_labels = []
+
+for test_batch_num, test_batch in enumerate(test_loader):
+    test_inputs = {'input_ids': test_batch[0].to(device),
+                   'attention_mask': test_batch[1].to(device),
+                   'labels': test_batch[2].to(device)}
+
+    test_outputs = model(**test_inputs)
+    test_predictions.extend(test_outputs.logits.argmax(dim=1).cpu().numpy())
+    test_true_labels.extend(test_inputs['labels'].cpu().numpy())
+
+#calculate the test_accuracy,test_f1,test_precision,test_recall
+test_accuracy = accuracy_score(test_true_labels, test_predictions)
+test_f1 = f1_score(test_true_labels, test_predictions, average='weighted')
+test_precision = precision_score(test_true_labels, test_predictions, average='weighted')
+test_recall = recall_score(test_true_labels, test_predictions, average='weighted')
+
+print(f'Test Accuracy: {test_accuracy * 100:.2f}%')
+print(f'F1 Score: {test_f1}, Precision: {test_precision}, Recall: {test_recall}')
+
+plt.figure(figsize=(10, 5))
+
+#plot for model loss over epohs
+plt.subplot(1, 2, 1)
+plt.plot(range(1, epochs + 1), train_losses, label='Train Loss', color='skyblue', linestyle='-', marker='o')
+plt.title('Model Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.grid(True, linestyle='--', alpha=0.7)
+
+
+plt.tight_layout()
+plt.show()
+
 
 
 
