@@ -184,7 +184,7 @@ model.add(Embedding(input_dim=max_num_words,#size of the vocabulary
                     input_length=max_len))#maximum length of input sequences
 #model.add(LSTM(100, return_sequences=True))  # Additional LSTM layer
 model.add(LSTM(100, kernel_regularizer=l2(0.001)))
-model.add(Dropout(0.7))#to handle overfitting
+model.add(Dropout(0.5))#to handle overfitting
 model.add(Dense(3, activation='softmax')) # 3 output nodes for positive, negative, and neutral
 
 model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
