@@ -202,6 +202,57 @@ plt.grid(True, linestyle='--', alpha=0.7)
 plt.tight_layout()
 plt.show()
 
+plt.figure(figsize=(10, 5))
 
+#plot accuracy over epochs
+plt.subplot(1, 2, 2)
+plt.plot(range(1, epochs + 1),train_accuracies, label='Training Accuracy', color='blue', linestyle='-', marker='o')
+plt.title('Metrics Over Epochs')
+plt.xlabel('Epochs')
+plt.ylabel('Training Accuracy')
+plt.legend()
+plt.grid(True, linestyle='--', alpha=0.7)
+
+plt.tight_layout()
+plt.show()
+
+plt.figure(figsize=(10, 5))
+#plot for accuracy and F1 score over epochs
+plt.subplot(1, 2, 2)
+plt.plot(range(1, epochs + 1),train_f1_scores, label='Training F1 Score', color='cyan', linestyle='-', marker='o')
+plt.title('Metrics Over Epochs')
+plt.xlabel('Epochs')
+plt.ylabel('Training F1 Score')
+plt.legend()
+plt.grid(True, linestyle='--', alpha=0.7)
+
+from sklearn.metrics import confusion_matrix, classification_report
+
+model.eval()
+
+test_predictions = []
+test_true_labels = []
+
+for test_batch_num, test_batch in enumerate(test_loader):
+    test_inputs = {
+        'input_ids': test_batch[0].to(device),
+        'attention_mask': test_batch[1].to(device),
+        'labels': test_batch[2].to(device)
+    }
+
+    test_outputs = model(**test_inputs)
+    test_predictions.extend(test_outputs.logits.argmax(dim=1).cpu().numpy())
+    test_true_labels.extend(test_inputs['labels'].cpu().numpy())
+
+test_conf_matrix = confusion_matrix(test_true_labels, test_predictions)
+test_class_report = classification_report(test_true_labels, test_predictions, target_names=label_mapping_reverse.values())
+
+#confusion matrix
+plt.figure(figsize=(8, 6))
+sns.heatmap(test_conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=label_mapping_reverse.values(), yticklabels=label_mapping_reverse.values())
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+plt.title('Test Confusion Matrix')
+plt.show()
 
 
