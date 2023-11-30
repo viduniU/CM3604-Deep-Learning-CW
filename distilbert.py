@@ -55,9 +55,9 @@ y_train_resampled = pd.Series(y_train_resampled)
 # tokenize with BERT tokenizer
 tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased', do_lower_case=True)
 #tokenize the resampled training set
-train_encodings = tokenizer(list(x_train_resampled), truncation=True, padding=True, max_length=256, return_tensors='pt')
+train_encodings = tokenizer(list(x_train_resampled), truncation=True, padding=True, max_length=400, return_tensors='pt')
 #tokenize the testing set
-test_encodings = tokenizer(list(x_test), truncation=True, padding=True, max_length=256, return_tensors='pt')
+test_encodings = tokenizer(list(x_test), truncation=True, padding=True, max_length=400, return_tensors='pt')
 #convert labels to numerical values
 label_mapping = {'positive': 2, 'neutral': 1, 'negative': 0}
 y_train_mapped = y_train_resampled.map(label_mapping)
@@ -73,7 +73,7 @@ test_loader = DataLoader(test_dataset, batch_size=8, shuffle=True)
 #load pre-trained BERT model for sequence classification
 model = DistilBertForSequenceClassification.from_pretrained('distilbert-base-uncased', num_labels=3)
 #define optimizer and learning rate scheduler
-optimizer = AdamW(model.parameters(), lr=2e-5)
+optimizer = AdamW(model.parameters(), lr=5e-5)
 scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=len(train_loader)*3)
 
 epochs = 5
