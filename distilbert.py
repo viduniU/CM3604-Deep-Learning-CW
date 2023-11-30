@@ -73,7 +73,7 @@ test_loader = DataLoader(test_dataset, batch_size=8, shuffle=True)
 #load pre-trained BERT model for sequence classification
 model = DistilBertForSequenceClassification.from_pretrained('distilbert-base-uncased', num_labels=3)
 #define optimizer and learning rate scheduler
-optimizer = AdamW(model.parameters(), lr=5e-5)
+optimizer = AdamW(model.parameters(), lr=2e-5)
 scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=len(train_loader)*3)
 
 epochs = 5
