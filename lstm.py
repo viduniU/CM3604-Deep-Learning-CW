@@ -1,12 +1,18 @@
 import nltk
 nltk.download('punkt')
+
 pip install langdetect
+
 import nltk
 nltk.download('stopwords')
+
 import nltk
 nltk.download('wordnet')
+
 pip install keras
+
 pip install tensorflow
+
 #import required libraries
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -44,16 +50,17 @@ from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
 from keras.callbacks import EarlyStopping
 from sklearn.metrics import precision_score, recall_score, f1_score
+
 from google.colab import drive
 drive.mount('/content/drive')
+
 file_path = '/content/drive/My Drive/Datasets/yelp_academic_dataset_review.json'
+
 # Load a subset of the dataset (adjust chunk_size and num_samples)
 chunk_size = 1000
 num_samples = 50000
-
 # Create an empty list to store DataFrames
 dataframe = []
-
 # Open the JSON file and process it in chunks with explicit encoding
 with open(file_path, 'r', encoding='utf-8') as file:
     for chunk in pd.read_json(file, lines=True, chunksize=chunk_size):
@@ -61,15 +68,13 @@ with open(file_path, 'r', encoding='utf-8') as file:
         dataframe.append(chunk[['text', 'stars']].copy())
         if sum(map(len, dataframe)) >= num_samples:
             break
-
 # Concatenate the list of DataFrames into the final DataFrame
 yelp_subset = pd.concat(dataframe, ignore_index=True)
-
 output_json_file_path = 'yelp_subset.json'
 yelp_subset.to_json(output_json_file_path, orient='records', lines=True)
-
 # Display the shape of the loaded subset
 print("Shape of Yelp Subset:", yelp_subset.shape)
+
 yelp_subset.head()
 
 Exploratory Data Analysis
@@ -142,11 +147,9 @@ x_test = x_test.apply(lambda x: ' '.join([lemmatizer.lemmatize(word) for word in
 
 #reshape x_train to have two dimensions
 x_train_reshape = x_train.values.reshape(-1, 1)
-
 #oversample the minority classes
 over_sampler = RandomOverSampler(sampling_strategy='auto', random_state=42)
 x_train_over_resampled, y_train_resampled = over_sampler.fit_resample(x_train_reshape, y_train)
-
 #convert oversampled indices to text sequences
 x_train_over = x_train_over_resampled.flatten()
 
@@ -154,21 +157,16 @@ Tokenization
 
 #maximum number of words to keep based on word frequency
 max_num_words = 3000
-
 #create a tokenizer
 tokenizer = Tokenizer(num_words=max_num_words,#replace the  words not in the tokenizer's vocabulary
                        oov_token='<OOV>')
-
 #fit the tokenizer on text
 tokenizer.fit_on_texts(x_train_over)
-
 #convert the text to integers sequences
 x_train_seq = tokenizer.texts_to_sequences(x_train_over)
 x_test_seq = tokenizer.texts_to_sequences(x_test)
-
 #define maximum length of the sequence
 max_len = 300
-
 #pad sequences to make sentences to the same length
 x_train_pad = pad_sequences(x_train_seq, maxlen=max_len)
 x_test_pad = pad_sequences(x_test_seq, maxlen=max_len)
@@ -176,8 +174,6 @@ x_test_pad = pad_sequences(x_test_seq, maxlen=max_len)
 Model Building
 #converting integer indices representing words into dense vectors of fixed size
 embedding_dim = 50
-
-
 model = Sequential()
 model.add(Embedding(input_dim=max_num_words,#size of the vocabulary
                     output_dim=embedding_dim,#size of dense embeddings
@@ -199,10 +195,10 @@ y_test_encoded = label_encoder.transform(y_test)
 y_train_one_hot = pd.get_dummies(y_train_encoded)
 y_test_one_hot = pd.get_dummies(y_test_encoded)
 
+Model Training
 #early stopping
 early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
 
-Model Training
 # model training
 history = model.fit(
     x_train_pad,
